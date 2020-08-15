@@ -40,6 +40,7 @@ def parsing_week():
                         for cur in i.split(','):
                             auditoriums.append(cur)
                     s[1] = s[1].replace(" ",  '')
+                    s[1] = s[1].replace("–", "-")
                     temp = {"discipline": sheet.cell(row=p, column=discipline_col).value, "type": s[0], "date": s[1], "classroom": auditoriums}
                     weeks.append(temp)
     return weeks
