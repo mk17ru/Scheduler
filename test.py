@@ -61,8 +61,8 @@ def parse_teachers():
     sheet3 = wb.get_sheet_by_name('параметры преподавателей')
     sheet1 = wb.get_sheet_by_name('параметры программ')
     teachers = []
-    for p in range(2, 7):
-        st = list(map(int, sheet3.cell(row=p, column=4).value.split(';')))
+    for p in range(2, 35):
+        st = list(map(int, str(sheet3.cell(row=p, column=4).value).split(';')))
         disc = []
         for i in st:
             if matching_disp.__contains__(sheet1.cell(row=i + 1, column=3).value.strip()):
@@ -72,7 +72,15 @@ def parse_teachers():
     return teachers
 
 def parse_disc():
-    return 1
+    wb = load_workbook('./data/Приложение №2.xlsx')
+    sheet1 = wb.get_sheet_by_name('параметры программ')
+    new_d = []
+    for p in range(2, 41):
+        if matching_disp.__contains__(sheet1.cell(row=p, column=3).value.strip()):
+            temp = matching_disp[sheet1.cell(row=p, column=3).value.strip()]
+            temp.update({"hours": sheet1.cell(row=p, column=5).value})
+            new_d.append(temp)
+    return new_d
 
  #Parsing application 1
 for i in parsing_week():
