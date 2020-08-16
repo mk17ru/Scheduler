@@ -10,6 +10,7 @@ def parsing_week():
     sheet = wb.get_sheet_by_name('ДПО')
     week_amount = [0, 5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 5]
     weeks = []
+    hidden = {"Начальная подготовка СД", "DCS Астра"}
     discipline_col = 7
     year_col = 9
     for month in range(12):
@@ -54,8 +55,9 @@ def parsing_week():
                                 auditoriums.append(cur)
                         new_s[1] = new_s[1].replace(" ",  '')
                         new_s[1] = new_s[1].replace("–", "-")
-                        temp = {"discipline": sheet.cell(row=p, column=discipline_col).value, "type": new_s[0], "date": new_s[1], "classroom": auditoriums}
-                        weeks.append(temp)
+                        if not(hidden.__contains__(sheet.cell(row=p, column=discipline_col).value)):
+                            temp = {"discipline": sheet.cell(row=p, column=discipline_col).value, "type": new_s[0], "date": new_s[1], "classroom": auditoriums}
+                            weeks.append(temp)
     return weeks
 
 matching_disp = {"Программа повышения квалификации \"Центровка и контроль загрузки воздушных судов. Базовый курс\"" : {"discipline": "Центровка и контроль загрузки ВС", "type" : "Базовый курс"},

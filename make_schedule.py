@@ -1,5 +1,8 @@
 import math
+from openpyxl import load_workbook
+from openpyxl import Workbook
 from test import *
+from openpyxl.utils import get_column_letter
 
 def get_disciplines():
     return parsing_week()
@@ -91,3 +94,21 @@ for month in range(months):
 
 for i in schedule:
     print(i)
+
+def print_solution():
+    wb = Workbook()
+    ws = wb.active
+    for month in range(months):
+        for day in range(days):
+            ind = 0
+            for lecture in range(lectures):
+                new_str = ""
+                ind += 1;
+                if len(schedule[month][day][lecture]) != 0:
+                    for y in schedule[month][day][lecture]:
+                        new_str += str(y) + "\n"
+                print(new_str)
+                ws.cell(row=3 + day * 4 + ind, column=(2 + month * 2), value=new_str)
+    wb.save(filename="TemplateYear.xlsx")
+
+print_solution()
