@@ -1,7 +1,9 @@
 from openpyxl import load_workbook
 import re
+
+
 def parsing_week():
-    wb = load_workbook('./data/Приложение №1.xlsx')
+    wb = load_workbook('data/Приложение №1.xlsx')
     sheet = wb.get_sheet_by_name('ДПО')
     week_amount = [0, 5, 4, 4, 5, 4, 4, 5, 4, 4, 5, 4, 5]
     weeks = []
@@ -15,34 +17,42 @@ def parsing_week():
                     continue
                 else:
                     s = sheet.cell(row=p, column=week).value.split('\n')
-                    if (len(s) > 3):
-                        new_str = ""
-                        ind = 0
-                        for r in s:
-                            if len(r) > 0 and str.isalpha(r[0]):
-                                new_str += r + " "
-                                ind += 1
-                            else:
-                                break
-                        new_s = []
-                        new_s.append(new_str.strip())
-                        for i in range(ind, len(s)):
-                            new_s.append(s[i])
-                        s = new_s
-                    # because of hidden cells
-                    if (len(s) < 3 or s[0] == "" or s[1] == "" or s[2] == ""):
-                        continue
-                    auditoriums = []
-                    s[2] = str.replace(s[2], '.', ' ')
-                    for i in re.split(' ', s[2]):
-                        if i == "ауд" or i == "ИАС" or i == "":
+                    while len(s) > 0:
+                        if (len(s) > 3):
+                            new_str = ""
+                            ind = 0
+                            for r in s:
+                                if len(r) > 0 and str.isalpha(r[0]):
+                                    new_str += r + " "
+                                    ind += 1
+                                else:
+                                    break
+                            new_s = []
+                            new_s.append(new_str.strip())
+                            for i in range(ind, ind + 2):
+                                new_s.append(s[i])
+                            s_cop = []
+                            for z in range(ind + 2, len(s)):
+                                if (s[z] != ""):
+                                    s_cop.append(s[z])
+                            s = s_cop
+                        else:
+                            new_s = s
+                            s = []
+                        # because of hidden cells
+                        if (len(new_s) < 3 or new_s[0] == "" or new_s[1] == "" or new_s[2] == ""):
                             continue
-                        for cur in i.split(','):
-                            auditoriums.append(cur)
-                    s[1] = s[1].replace(" ",  '')
-                    s[1] = s[1].replace("–", "-")
-                    temp = {"discipline": sheet.cell(row=p, column=discipline_col).value, "type": s[0], "date": s[1], "classroom": auditoriums}
-                    weeks.append(temp)
+                        auditoriums = []
+                        new_s[2] = str.replace(new_s[2], '.', ' ')
+                        for i in re.split(' ', new_s[2]):
+                            if i == "ауд" or i == "ИАС" or i == "":
+                                continue
+                            for cur in i.split(','):
+                                auditoriums.append(cur)
+                        new_s[1] = new_s[1].replace(" ",  '')
+                        new_s[1] = new_s[1].replace("–", "-")
+                        temp = {"discipline": sheet.cell(row=p, column=discipline_col).value, "type": new_s[0], "date": new_s[1], "classroom": auditoriums}
+                        weeks.append(temp)
     return weeks
 
 matching_disp = {"Программа повышения квалификации \"Центровка и контроль загрузки воздушных судов. Базовый курс\"" : {"discipline": "Центровка и контроль загрузки ВС", "type" : "Базовый курс"},
@@ -65,7 +75,7 @@ matching_disp = {"Программа повышения квалификации
                  "Программа повышения квалификации «Предотвращение несанкционированного доступа в контролируемую зону аэропорта»" : {"discipline": "Охрана аэропорта", "type": "Программа повышения квалификации"}
                  }
 def parse_teachers():
-    wb = load_workbook('./data/Приложение №2.xlsx')
+    wb = load_workbook('data/Приложение №2.xlsx')
     sheet3 = wb.get_sheet_by_name('параметры преподавателей')
     sheet1 = wb.get_sheet_by_name('параметры программ')
     teachers = []
@@ -81,7 +91,7 @@ def parse_teachers():
     return teachers
 
 def parse_disc():
-    wb = load_workbook('./data/Приложение №2.xlsx')
+    wb = load_workbook('data/Приложение №2.xlsx')
     sheet1 = wb.get_sheet_by_name('параметры программ')
     new_d = []
     for p in range(2, 41):
