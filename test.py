@@ -1,6 +1,9 @@
 from openpyxl import load_workbook
 import re
+import pyexcel as p
 
+p.save_book_as(file_name='./data/Приложение №5.xls',
+               dest_file_name='./data/Приложение №5.xlsx')
 
 def parsing_week():
     wb = load_workbook('data/Приложение №1.xlsx')
@@ -74,6 +77,10 @@ matching_disp = {"Программа повышения квалификации
                  "Программа специальной профессиональной подготовки  «Предотвращение несанкционированного доступа в контролируемую зону аэропорта»" : {"discipline": "Охрана аэропорта", "type": "Специальная профессиональная подготовка"},
                  "Программа повышения квалификации «Предотвращение несанкционированного доступа в контролируемую зону аэропорта»" : {"discipline": "Охрана аэропорта", "type": "Программа повышения квалификации"}
                  }
+
+
+teachers_holidays = {}
+
 def parse_teachers():
     wb = load_workbook('data/Приложение №2.xlsx')
     sheet3 = wb.get_sheet_by_name('параметры преподавателей')
@@ -87,7 +94,8 @@ def parse_teachers():
                 disc.append(matching_disp[sheet1.cell(row=i + 1, column=3).value.strip()])
         if len(disc) > 0:
             teachers.append({"name" : sheet3.cell(row=p, column=2).value, "works" : disc, "prior" : sheet3.cell(row=p, column=5).value,
-                        "work_time" : sheet3.cell(row=p, column=7).value, "scheduler" : sheet3.cell(row=p, column=8).value})
+                        "work_time" : sheet3.cell(row=p, column=7).value, "scheduler" : sheet3.cell(row=p, column=8).value, "holidays": teachers_holidays.get(sheet3.cell(row=p, column=2).value)
+                             })
     return teachers
 
 def parse_disc():
@@ -101,11 +109,33 @@ def parse_disc():
             new_d.append(temp)
     return new_d
 
-#Parsing application 1
+def parse_holidays():
+    wb = load_workbook('data/Приложение №5.xlsx')
+    sheet1 = wb.get_sheet_by_name('План')
+    for p in range(9, 24):
+        for i in range(4, 27, 2):
+            if sheet1.cell(row=p, column=i).value != None:
+                cur_data = ""
+                cur_data += str((sheet1.cell(row=p, column=i + 1).value-1) * 10 + 1) + "." + str((i - 2) // 2) + "-"
+                if (sheet1.cell(row=p, column=i + 1).value-1) * 10 + sheet1.cell(row=p, column=i).value > 30:
+                    cur_data += str(sheet1.cell(row=p, column=i).value - (30 - (sheet1.cell(row=p, column=i + 1).value-1) * 10)) + "." + str(((i - 2) // 2 + 1) % 13)
+                else:
+                    cur_data += str((sheet1.cell(row=p, column=i + 1).value-1) * 10 + sheet1.cell(row=p, column=i).value) + "." + str((i - 2) // 2)
+
+                if not(teachers_holidays.__contains__(sheet1.cell(row=p, column=2).value)):
+                    teachers_holidays[sheet1.cell(row=p, column=2).value] = []
+                teachers_holidays[sheet1.cell(row=p, column=2).value].append(cur_data)
+
+
+                #Parsing application 1
 for i in parsing_week():
     print(i, end=", \n")
 print()
 print("------------------------------------------------------------\n upper were weeks")
+
+#Parsing application 5
+parse_holidays()
+
 #Parsing application 2
 for j in parse_teachers():
     print(j, end=", \n")
@@ -116,5 +146,5 @@ for z in parse_disc():
 print()
 print("------------------------------------------------------------\n upper were hours")
 
-
+print(teachers_holidays)
 #parse_teachers()
